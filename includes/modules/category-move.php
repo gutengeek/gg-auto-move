@@ -24,16 +24,32 @@ function gg_auto_move_move( $wp ) {
 
 	if ( 'edit.php' !== $pagenow
 	     || 'product' !== $wp->query_vars['post_type']
-	     || ! isset( $_GET['gg_auto_move_pids'] )
+	     || ! isset( $_GET['gg_auto_move_move'] )
+	     || ! $_GET['gg_auto_move_move']
 	     || ! isset( $_GET['product_cat'] )
 	     || ! sanitize_text_field( $_GET['product_cat'] )
 	) {
 		return;
 	}
 
-	$pids = explode( ',', sanitize_text_field( $_GET['gg_auto_move_pids'] ) );
-	$pids = array_map( 'trim', $pids );
-	$pids = array_map( 'absint', $pids );
+	$gg_auto_move_pids = isset( $_GET['gg_auto_move_pids'] ) ? sanitize_text_field( $_GET['gg_auto_move_pids'] ) : '';
+	$selected_products = isset( $_GET['post'] ) ? gg_auto_move_clean( $_GET['post'] ) : [];
+
+	if ( ! $gg_auto_move_pids && ! $selected_products ) {
+		return;
+	}
+
+	$pids = [];
+
+	if ( $gg_auto_move_pids ) {
+		$pids = explode( ',', $gg_auto_move_pids );
+		$pids = array_map( 'trim', $pids );
+		$pids = array_map( 'absint', $pids );
+	}
+
+	if ( $selected_products ) {
+		$pids = array_merge( $pids, $selected_products );
+	}
 
 	$cat_slug = sanitize_text_field( $_GET['product_cat'] );
 
